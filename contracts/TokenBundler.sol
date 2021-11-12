@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@pwnfinance/multitoken/contracts/MultiToken.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-contract Bundler is ERC1155 {
+contract TokenBundler is ERC1155 {
     using MultiToken for MultiToken.Asset;
 
     /*----------------------------------------------------------*|
@@ -48,9 +48,9 @@ contract Bundler is ERC1155 {
     |*----------------------------------------------------------*/
 
     /**
-     * Bundler constructor
+     * Token Bundler constructor
      * @param _metaUri Uri to be used for finding a bundle metadata
-     * @param _maxSize Maximum size bundle a bundler can create
+     * @param _maxSize Maximum bundle size Bundler can create
      */
     constructor(string memory _metaUri, uint256 _maxSize) ERC1155(_metaUri) {
         maxSize = _maxSize;

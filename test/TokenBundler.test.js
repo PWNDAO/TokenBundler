@@ -6,7 +6,7 @@ const expect = chai.expect;
 chai.use(smock.matchers);
 
 
-describe("Bundler", function() {
+describe("TokenBundler contract", function() {
 
 	let Bundler;
 	let bundler;
@@ -25,7 +25,7 @@ describe("Bundler", function() {
 	};
 
 	before(async function() {
-		Bundler = await ethers.getContractFactory("Bundler");
+		Bundler = await ethers.getContractFactory("TokenBundler");
 		[addr1, addr2, addr3, asset1, asset2, asset3] = await ethers.getSigners();
 		bundlerIface = new ethers.utils.Interface([
 			"event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)",
@@ -148,7 +148,7 @@ describe("Bundler", function() {
 		});
 
 		it("Should increase global id and use it as bundle id", async function() {
-			const mockFactory = await smock.mock("Bundler");
+			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			await mockBundler.setVariable("id", 120);
 
@@ -209,7 +209,7 @@ describe("Bundler", function() {
 		xit("Should increase global nonce");
 
 		it("Should store asset under nonce", async function() {
-			const mockFactory = await smock.mock("Bundler");
+			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
 			await mockBundler.setVariable("nonce", nonce);
@@ -227,7 +227,7 @@ describe("Bundler", function() {
 		});
 
 		it("Should push asset nonce to bundle asset array", async function() {
-			const mockFactory = await smock.mock("Bundler");
+			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
 			await mockBundler.setVariable("nonce", nonce);
@@ -302,7 +302,7 @@ describe("Bundler", function() {
 		});
 
 		it("Should delete all assets", async function() {
-			const mockFactory = await smock.mock("Bundler");
+			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
 			await mockBundler.setVariable("nonce", nonce);
@@ -322,7 +322,7 @@ describe("Bundler", function() {
 		});
 
 		it("Should delete bundle asset array", async function() {
-			const mockFactory = await smock.mock("Bundler");
+			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
 			await mockBundler.setVariable("nonce", nonce);
