@@ -30,7 +30,7 @@ describe("Bundler", function() {
 		bundlerIface = new ethers.utils.Interface([
 			"event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)",
 			"event BundleCreated(uint256 indexed id, address indexed creator)",
-    		"event BundleUnwrapped(uint256 indexed id)"
+			"event BundleUnwrapped(uint256 indexed id)",
 		]);
 	});
 

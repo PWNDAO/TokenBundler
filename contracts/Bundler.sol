@@ -49,7 +49,7 @@ contract Bundler is ERC1155 {
 
     /**
      * Bundler constructor
-     * @param _uri Uri to be used for finding a bundle metadata
+     * @param _metaUri Uri to be used for finding a bundle metadata
      * @param _maxSize Maximum size bundle a bundler can create
      */
     constructor(string memory _metaUri, uint256 _maxSize) ERC1155(_metaUri) {
@@ -88,21 +88,21 @@ contract Bundler is ERC1155 {
      * @dev Emits `BundleUnwrapped` event
      * @param _bundleId Bundle id to unwrap
      */
-    function unwrap(uint256 _bundleID) external {
-        require(balanceOf(msg.sender, _bundleID) == 1, "Sender is not bundle owner");
+    function unwrap(uint256 _bundleId) external {
+        require(balanceOf(msg.sender, _bundleId) == 1, "Sender is not bundle owner");
 
-        uint256[] memory tokenList = bundles[_bundleID];
+        uint256[] memory tokenList = bundles[_bundleId];
 
         for (uint i; i < tokenList.length; i++) {
             tokens[tokenList[i]].transferAsset(msg.sender);
             delete tokens[tokenList[i]];
         }
 
-        delete bundles[_bundleID];
+        delete bundles[_bundleId];
 
-        _burn(msg.sender, _bundleID, 1);
+        _burn(msg.sender, _bundleId, 1);
 
-        emit BundleUnwrapped(_bundleID);
+        emit BundleUnwrapped(_bundleId);
     }
 
     /**
@@ -112,10 +112,10 @@ contract Bundler is ERC1155 {
      * @param _bundleId Bundle id of a bundle to add asset to
      * @param _asset Asset that should be added to a bundle
      */
-    function addToBundle(uint256 _bundleID, MultiToken.Asset memory _asset) private {
+    function addToBundle(uint256 _bundleId, MultiToken.Asset memory _asset) private {
         nonce++;
         tokens[nonce] = _asset;
-        bundles[_bundleID].push(nonce);
+        bundles[_bundleId].push(nonce);
 
         _asset.transferAssetFrom(msg.sender, address(this));
     }
