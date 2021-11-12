@@ -150,7 +150,7 @@ describe("TokenBundler contract", function() {
 		it("Should increase global id and use it as bundle id", async function() {
 			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
-			await mockBundler.setVariable("id", 120);
+			await mockBundler.setVariable("_id", 120);
 
 			const bundleId1 = await mockBundler.callStatic.create(assets);
 			await mockBundler.create(assets);
@@ -212,13 +212,13 @@ describe("TokenBundler contract", function() {
 			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
-			await mockBundler.setVariable("nonce", nonce);
+			await mockBundler.setVariable("_nonce", nonce);
 
 			const bundleId = await mockBundler.callStatic.create(assets);
 			await mockBundler.create(assets);
 
 			for (i = 0; i < assets.length; i++) {
-				const asset = await mockBundler.tokens(nonce + i + 1);
+				const asset = await mockBundler.token(nonce + i + 1);
 				expect(asset.assetAddress).to.equal(assets[i][0]);
 				expect(asset.category).to.equal(assets[i][1]);
 				expect(asset.amount).to.equal(assets[i][2]);
@@ -230,13 +230,14 @@ describe("TokenBundler contract", function() {
 			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
-			await mockBundler.setVariable("nonce", nonce);
+			await mockBundler.setVariable("_nonce", nonce);
 
 			const bundleId = await mockBundler.callStatic.create(assets);
 			await mockBundler.create(assets);
 
+			const bundle = await mockBundler.bundle(bundleId);
 			for (i = 0; i < assets.length; i++) {
-				expect(await mockBundler.bundles(bundleId, i)).to.equal(nonce + i + 1);
+				expect(bundle[i]).to.equal(nonce + i + 1);
 			}
 		});
 
@@ -305,7 +306,7 @@ describe("TokenBundler contract", function() {
 			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
-			await mockBundler.setVariable("nonce", nonce);
+			await mockBundler.setVariable("_nonce", nonce);
 
 			const bundleId = await mockBundler.callStatic.create(assets);
 			await mockBundler.create(assets);
@@ -313,7 +314,7 @@ describe("TokenBundler contract", function() {
 			await mockBundler.unwrap(bundleId);
 
 			for (i = 0; i < assets.length; i++) {
-				const asset = await mockBundler.tokens(nonce + i + 1);
+				const asset = await mockBundler.token(nonce + i + 1);
 				expect(asset.assetAddress).to.equal(ethers.constants.AddressZero);
 				expect(asset.category).to.equal(0);
 				expect(asset.amount).to.equal(0);
@@ -325,23 +326,15 @@ describe("TokenBundler contract", function() {
 			const mockFactory = await smock.mock("TokenBundler");
 			const mockBundler = await mockFactory.deploy("", 3);
 			const nonce = 120;
-			await mockBundler.setVariable("nonce", nonce);
+			await mockBundler.setVariable("_nonce", nonce);
 
 			const bundleId = await mockBundler.callStatic.create(assets);
 			await mockBundler.create(assets);
 
 			await mockBundler.unwrap(bundleId);
 
-			let failed = false;
-
-			try {
-				await mockBundler.bundles(bundleId, 0);
-				expect().fail();
-			} catch {
-				failed = true;
-			}
-
-			expect(failed).to.equal(true);
+			const bundle = await mockBundler.bundle(bundleId);
+			expect(bundle).to.have.length(0);
 		});
 
 		it("Should burn bundle token", async function() {
