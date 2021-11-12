@@ -12,8 +12,8 @@ contract Bundler is ERC1155 {
 
     uint256 public maxSize;
 
-    mapping (uint256 => uint256[]) bundles;
-    mapping (uint256 => MultiToken.Asset) tokens;
+    mapping (uint256 => uint256[]) public bundles;
+    mapping (uint256 => MultiToken.Asset) public tokens;
 
     event BundleCreated(uint256 indexed id, address indexed creator);
     event BundleUnwrapped(uint256 indexed id);
@@ -22,7 +22,8 @@ contract Bundler is ERC1155 {
         maxSize = _maxSize;
     }
 
-    function create(MultiToken.Asset[] memory _assets) external {
+    function create(MultiToken.Asset[] memory _assets) external returns (uint256) {
+        require(_assets.length > 0, "Need to bundle at least one asset");
         require(_assets.length <= maxSize, "Number of assets exceed max bundle size");
 
         uint256 bundleId = ++id;
@@ -31,9 +32,11 @@ contract Bundler is ERC1155 {
 
         emit BundleCreated(bundleId, msg.sender);
 
-        for (uint i; i <= _assets.length; i++) {
+        for (uint i; i < _assets.length; i++) {
             addToBundle(bundleId, _assets[i]);
         }
+
+        return bundleId;
     }
 
     function unwrap(uint256 _bundleID) external {
@@ -41,8 +44,8 @@ contract Bundler is ERC1155 {
 
         uint256[] memory tokenList = bundles[_bundleID];
 
-        for (uint i; i <= tokenList.length; i++) {
-            MultiToken.transferAsset(tokens[tokenList[i]], msg.sender);
+        for (uint i; i < tokenList.length; i++) {
+            tokens[tokenList[i]].transferAsset(msg.sender);
             delete tokens[tokenList[i]];
         }
 
@@ -59,7 +62,7 @@ contract Bundler is ERC1155 {
         tokens[nonce] = _asset;
         bundles[_bundleID].push(nonce);
 
-        MultiToken.transferAssetFrom(_asset, msg.sender, address(this));
+        _asset.transferAssetFrom(msg.sender, address(this));
     }
 
 }
