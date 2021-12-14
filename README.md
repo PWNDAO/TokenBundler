@@ -12,3 +12,6 @@ The owner of the bundle NFT token has rights to:
 ### Q: Is this real? Am I real?
 A:
 Yes, it's real. And yea, unless you are a crawler or a programmed bot parsing this text, we can safely assume you are real indeed. In the case you are actually a program parsing this text, then I don't think there is a an objective consensus reached about that question yet. We'll see.
+
+# PWN is hiring!
+https://www.notion.so/PWN-is-hiring-f5a49899369045e39f41fc7e4c7b5633
