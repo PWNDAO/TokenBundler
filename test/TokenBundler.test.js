@@ -10,7 +10,6 @@ describe("TokenBundler contract", function() {
 
     let Bundler;
     let bundler;
-    let bundlerIface;
 
     let addr1, addr2, addr3, asset1, asset2, asset3;
 
@@ -27,11 +26,6 @@ describe("TokenBundler contract", function() {
     before(async function() {
         Bundler = await ethers.getContractFactory("TokenBundler");
         [addr1, addr2, addr3, asset1, asset2, asset3] = await ethers.getSigners();
-        bundlerIface = new ethers.utils.Interface([
-            "event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)",
-            "event BundleCreated(uint256 indexed id, address indexed creator)",
-            "event BundleUnwrapped(uint256 indexed id)",
-        ]);
     });
 
     beforeEach(async function() {
@@ -90,61 +84,38 @@ describe("TokenBundler contract", function() {
     describe("Create", function() {
 
         it("Should fail when passing empty array", async function() {
-            try {
-                await bundler.create([]);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-                expect(error.message).to.contain("Need to bundle at least one asset");
-            }
+            await expect(
+                bundler.create([])
+            ).to.be.revertedWith("Need to bundle at least one asset");
         });
 
         it("Should fail when passing array bigger than max size", async function() {
             const fakeToken = await smock.fake("ERC20");
             assets.push([fakeToken.address, CATEGORY.ERC20, 123123, 0]);
 
-            try {
-                await bundler.create(assets);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-                expect(error.message).to.contain("Number of assets exceed max bundle size");
-            }
+            await expect(
+                bundler.create(assets)
+            ).to.be.revertedWith("Number of assets exceed max bundle size");
         });
 
         it("Should be able to pass one asset", async function() {
-            let failed = false;
-
-            try {
-                await bundler.create([assets[0]]);
-            } catch {
-                failed = true;
-            }
-
-            expect(failed).to.equal(false);
+            await expect(
+                bundler.create([assets[0]])
+            ).to.not.be.reverted;
         });
 
         it("Should be able to pass max number of assets", async function() {
             bundler = await Bundler.deploy("https://test.uri/", 2);
-            let failed = false;
 
-            try {
-                await bundler.create([assets[1], assets[2]]);
-            } catch {
-                failed = true;
-            }
-
-            expect(failed).to.equal(false);
+            await expect(
+                bundler.create([assets[1], assets[2]])
+            ).to.not.be.reverted;
         });
 
         it("Should not join same assets if passed as separate ones", async function() {
-            try {
-                await bundler.create([assets[0], assets[0], assets[0], assets[0]]);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-                expect(error.message).to.contain("Number of assets exceed max bundle size");
-            }
+            await expect(
+                bundler.create([assets[0], assets[0], assets[0], assets[0]])
+            ).to.be.revertedWith("Number of assets exceed max bundle size");
         });
 
         it("Should increase global id and use it as bundle id", async function() {
@@ -179,29 +150,20 @@ describe("TokenBundler contract", function() {
 
         it("Should emit `TransferSingle` event", async function() {
             const bundleId = await bundler.connect(addr3).callStatic.create(assets);
-            const tx = await bundler.connect(addr3).create(assets);
-            const response = await tx.wait();
-
-            expect(response.logs.length).to.equal(2);
-            const logDescription = bundlerIface.parseLog(response.logs[0]);
-            expect(logDescription.name).to.equal("TransferSingle");
-            expect(logDescription.args.operator).to.equal(addr3.address);
-            expect(logDescription.args.from).to.equal(ethers.constants.AddressZero);
-            expect(logDescription.args.to).to.equal(addr3.address);
-            expect(logDescription.args.id).to.equal(bundleId);
-            expect(logDescription.args.value).to.equal(1);
+            await expect(
+                bundler.connect(addr3).create(assets)
+            ).to.emit(bundler, "TransferSingle").withArgs(
+                addr3.address, ethers.constants.AddressZero, addr3.address, bundleId, 1
+            );
         });
 
         it("Should emit `BundleCreated` event", async function() {
             const bundleId = await bundler.connect(addr3).callStatic.create(assets);
-            const tx = await bundler.connect(addr3).create(assets);
-            const response = await tx.wait();
-
-            expect(response.logs.length).to.equal(2);
-            const logDescription = bundlerIface.parseLog(response.logs[1]);
-            expect(logDescription.name).to.equal("BundleCreated");
-            expect(logDescription.args.id).to.equal(bundleId);
-            expect(logDescription.args.creator).to.equal(addr3.address);
+            await expect(
+                bundler.connect(addr3).create(assets)
+            ).to.emit(bundler, "BundleCreated").withArgs(
+                bundleId, addr3.address
+            );
         });
 
         // Wait for Smock to implement reading private contract variables
@@ -252,12 +214,9 @@ describe("TokenBundler contract", function() {
         it("Should fail when any asset transfer fails", async function() {
             fullAssets[0].token.transferFrom.reverts();
 
-            try {
-                await bundler.create(assets);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-            }
+            await expect(
+                bundler.create(assets)
+            ).to.be.reverted;
         });
 
     });
@@ -274,13 +233,9 @@ describe("TokenBundler contract", function() {
 
 
         it("Should fail when sender is not bundle owner", async function() {
-            try {
-                await bundler.connect(addr2).unwrap(bundleId);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-                expect(error.message).to.contain("Sender is not bundle owner");
-            }
+            await expect(
+                bundler.connect(addr2).unwrap(bundleId)
+            ).to.be.revertedWith("Sender is not bundle owner");
         });
 
         it("Should transfer bundle assets to sender", async function() {
@@ -294,12 +249,9 @@ describe("TokenBundler contract", function() {
         it("Should fail when any asset transfer fails", async function() {
             fullAssets[0].token.transfer.reverts();
 
-            try {
-                await bundler.unwrap(bundleId);
-                expect().fail();
-            } catch(error) {
-                expect(error.message).to.contain("revert");
-            }
+            await expect(
+                bundler.unwrap(bundleId)
+            ).to.be.reverted;
         });
 
         it("Should delete all assets", async function() {
@@ -345,27 +297,19 @@ describe("TokenBundler contract", function() {
         });
 
         it("Should emit `TransferSingle` event", async function() {
-            const tx = await bundler.unwrap(bundleId);
-            const response = await tx.wait();
-
-            expect(response.logs.length).to.equal(2);
-            const logDescription = bundlerIface.parseLog(response.logs[0]);
-            expect(logDescription.name).to.equal("TransferSingle");
-            expect(logDescription.args.operator).to.equal(addr1.address);
-            expect(logDescription.args.from).to.equal(addr1.address);
-            expect(logDescription.args.to).to.equal(ethers.constants.AddressZero);
-            expect(logDescription.args.id).to.equal(bundleId);
-            expect(logDescription.args.value).to.equal(1);
+            await expect(
+                bundler.unwrap(bundleId)
+            ).to.emit(bundler, "TransferSingle").withArgs(
+                addr1.address, addr1.address, ethers.constants.AddressZero, bundleId, 1
+            );
         });
 
         it("Should emit `BundleUnwrapped` event", async function() {
-            const tx = await bundler.unwrap(bundleId);
-            const response = await tx.wait();
-
-            expect(response.logs.length).to.equal(2);
-            const logDescription = bundlerIface.parseLog(response.logs[1]);
-            expect(logDescription.name).to.equal("BundleUnwrapped");
-            expect(logDescription.args.id).to.equal(bundleId);
+            await expect(
+                bundler.unwrap(bundleId)
+            ).to.emit(bundler, "BundleUnwrapped").withArgs(
+                bundleId
+            );
         });
 
     });
