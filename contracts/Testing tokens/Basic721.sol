@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  */
 contract Basic721 is ERC721, Ownable {
     
-    constructor(string memory name, string memory symbol) public 
+    constructor(string memory name, string memory symbol)
         ERC721(name, symbol)
         Ownable()
     { }
@@ -32,7 +32,7 @@ contract Basic721 is ERC721, Ownable {
         return baseURI;
     }
 
-    function setBaseURI(string memory _baseURI) public onlyOwner {
-        baseURI = _baseURI;
+    function setBaseURI(string memory baseURI_) public onlyOwner {
+        baseURI = baseURI_;
     }
 }
