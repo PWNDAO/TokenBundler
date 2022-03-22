@@ -370,4 +370,59 @@ describe("TokenBundler contract", function() {
 
     });
 
+
+    describe("Supports interface", function() {
+
+        function fSelector(signature) {
+            const bytes = ethers.utils.toUtf8Bytes(signature)
+            const hash = ethers.utils.keccak256(bytes);
+            const selector = ethers.utils.hexDataSlice(hash, 0, 4);
+            return ethers.BigNumber.from(selector);
+        }
+
+
+        it("Should support ERC165 interface", async function() {
+            const interfaceId = fSelector("supportsInterface(bytes4)");
+
+            const supportsERC165 = await bundler.supportsInterface(interfaceId);
+
+            expect(supportsERC165).to.equal(true);
+        });
+
+        it("Should support ERC1155 interface", async function() {
+            const interfaceId = fSelector("balanceOf(address,uint256)")
+                .xor(fSelector("balanceOfBatch(address[],uint256[])"))
+                .xor(fSelector("setApprovalForAll(address,bool)"))
+                .xor(fSelector("isApprovedForAll(address,address)"))
+                .xor(fSelector("safeTransferFrom(address,address,uint256,uint256,bytes)"))
+                .xor(fSelector("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"));
+
+            const supportsERC1155 = await bundler.supportsInterface(interfaceId);
+
+            expect(supportsERC1155).to.equal(true);
+        });
+
+        it("Should support ERC1155Receiver interface", async function() {
+            const interfaceId = fSelector("onERC1155Received(address,address,uint256,uint256,bytes)")
+                .xor(fSelector("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
+
+            const supportsERC1155Receiver = await bundler.supportsInterface(interfaceId);
+
+            expect(supportsERC1155Receiver).to.equal(true);
+        });
+
+        it("Should support Token Bundler interface", async function() {
+            const interfaceId = fSelector("create((address,uint8,uint256,uint256)[])")
+                .xor(fSelector("unwrap(uint256)"))
+                .xor(fSelector("token(uint256)"))
+                .xor(fSelector("bundle(uint256)"))
+                .xor(fSelector("maxSize()"));
+
+            const supportsTokenBundler = await bundler.supportsInterface(interfaceId);
+
+            expect(supportsTokenBundler).to.equal(true);
+        });
+
+    });
+
 });

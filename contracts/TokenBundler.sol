@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@pwnfinance/multitoken/contracts/MultiToken.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "./ITokenBundler.sol";
 
-contract TokenBundler is ERC1155, ITokenBundler {
+contract TokenBundler is ERC1155, IERC1155Receiver, ITokenBundler {
     using MultiToken for MultiToken.Asset;
 
     /*----------------------------------------------------------*|
@@ -55,6 +56,7 @@ contract TokenBundler is ERC1155, ITokenBundler {
     constructor(string memory _metaUri, uint256 _bundleMaxSize) ERC1155(_metaUri) {
         _maxSize = _bundleMaxSize;
     }
+
 
     /**
      * @dev See {ITokenBundler-create}.
@@ -116,6 +118,43 @@ contract TokenBundler is ERC1155, ITokenBundler {
     function maxSize() override external view returns (uint256) {
         return _maxSize;
     }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     */
+    function onERC1155Received(
+        address /*operator*/,
+        address /*from*/,
+        uint256 /*id*/,
+        uint256 /*value*/,
+        bytes calldata /*data*/
+    ) override external pure returns (bytes4) {
+        return 0xf23a6e61;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     */
+    function onERC1155BatchReceived(
+        address /*operator*/,
+        address /*from*/,
+        uint256[] calldata /*ids*/,
+        uint256[] calldata /*values*/,
+        bytes calldata /*data*/
+    ) override external pure returns (bytes4) {
+        return 0xbc197c81;
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, IERC165) returns (bool) {
+        return
+            interfaceId == type(ITokenBundler).interfaceId ||
+            interfaceId == type(IERC1155Receiver).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
 
     /**
      * addToBundle
