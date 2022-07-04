@@ -6,7 +6,7 @@ import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 /**
  * @dev this is just a dummy mintable/burnable ERC20 for testing purposes
  */
-contract Basic20 is ERC20, Ownable {
+contract T20 is ERC20, Ownable {
     
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
 

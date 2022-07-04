@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 
 /**
- * @dev this is just a dummy mintable/burnable ERC20 for testing purposes
+ * @dev this is just a dummy mintable/burnable ERC1155 for testing purposes
  */
-contract Basic1155 is ERC1155 {
+contract T1155 is ERC1155 {
     
     constructor(string memory uri) ERC1155(uri) {
 
