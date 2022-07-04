@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@pwnfinance/multitoken/contracts/MultiToken.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "MultiToken/MultiToken.sol";
+import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
+import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "./ITokenBundler.sol";
 
 contract TokenBundler is ERC1155, IERC1155Receiver, ITokenBundler {
