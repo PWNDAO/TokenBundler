@@ -2,11 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "MultiToken/MultiToken.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "./ITokenBundler.sol";
 
-contract TokenBundler is ERC1155, IERC1155Receiver, ITokenBundler {
+contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundler {
     using MultiToken for MultiToken.Asset;
 
     /*----------------------------------------------------------*|
@@ -117,6 +118,18 @@ contract TokenBundler is ERC1155, IERC1155Receiver, ITokenBundler {
      */
     function maxSize() override external view returns (uint256) {
         return _maxSize;
+    }
+
+    /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     */
+    function onERC721Received(
+        address /*operator*/,
+        address /*from*/,
+        uint256 /*tokenId*/,
+        bytes calldata /*data*/
+    ) override external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     /**
