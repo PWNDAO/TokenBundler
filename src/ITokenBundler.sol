@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@pwnfinance/multitoken/contracts/MultiToken.sol";
+import "MultiToken/MultiToken.sol";
 
 interface ITokenBundler {
 

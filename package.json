@@ -2,9 +2,6 @@
   "name": "@pwnfinance/token-bundler",
   "version": "1.0.0",
   "description": "Enables to bundle ERC20, ERC721, ERC1155 into a single ERC1155 token.",
-  "scripts": {
-    "test": "npx hardhat test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PWNFinance/TokenBundler.git"
@@ -18,26 +15,13 @@
     "bundle"
   ],
   "files": [
-    "contracts/ITokenBundler.sol",
-    "contracts/TokenBundler.sol"
+    "src/ITokenBundler.sol",
+    "src/TokenBundler.sol"
   ],
   "author": "PWN Finance",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/PWNFinance/TokenBundler/issues"
   },
-  "homepage": "https://github.com/PWNFinance/TokenBundler#readme",
-  "devDependencies": {
-    "@defi-wonderland/smock": "^2.0.7",
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-etherscan": "^3.0.1",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.3.2",
-    "@pwnfinance/multitoken": "^1.0.3",
-    "chai": "^4.3.4",
-    "dotenv": "^16.0.0",
-    "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.4.5",
-    "hardhat": "2.9.1"
-  }
+  "homepage": "https://github.com/PWNFinance/TokenBundler#readme"
 }
