@@ -62,21 +62,24 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
     /**
      * @dev See {ITokenBundler-create}.
      */
-    function create(MultiToken.Asset[] memory _assets) override external returns (uint256) {
+    function create(MultiToken.Asset[] memory _assets) override external returns (uint256 bundleId) {
         require(_assets.length > 0, "Need to bundle at least one asset");
         require(_assets.length <= _maxSize, "Number of assets exceed max bundle size");
 
-        uint256 bundleId = ++_id;
+        bundleId = ++_id;
+        uint256 length = _assets.length;
+        for (uint i; i < length;) {
+            _tokens[++_nonce] = _assets[i];
+            _bundles[bundleId].push(_nonce);
+
+            _assets[i].transferAssetFrom(msg.sender, address(this));
+
+            unchecked { ++i; }
+        }
 
         _mint(msg.sender, bundleId, 1, "");
 
         emit BundleCreated(bundleId, msg.sender);
-
-        for (uint i; i < _assets.length; i++) {
-            _addToBundle(bundleId, _assets[i]);
-        }
-
-        return bundleId;
     }
 
     /**
@@ -87,9 +90,12 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
 
         uint256[] memory tokenList = _bundles[_bundleId];
 
-        for (uint i; i < tokenList.length; i++) {
+        uint256 length = tokenList.length;
+        for (uint i; i < length;) {
             _tokens[tokenList[i]].transferAsset(msg.sender);
             delete _tokens[tokenList[i]];
+
+            unchecked { ++i; }
         }
 
         delete _bundles[_bundleId];
@@ -167,22 +173,6 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
             interfaceId == type(IERC721Receiver).interfaceId ||
             interfaceId == type(ITokenBundler).interfaceId ||
             super.supportsInterface(interfaceId);
-    }
-
-
-    /**
-     * addToBundle
-     * @dev Utility function to add asset to a bundle.
-     * @dev Transfers asset to Bundler contract, assign nonce to asset and push the token nonce into a bundle token list.
-     * @param _bundleId Bundle id of a bundle to add asset to
-     * @param _asset Asset that should be added to a bundle
-     */
-    function _addToBundle(uint256 _bundleId, MultiToken.Asset memory _asset) private {
-        _nonce++;
-        _tokens[_nonce] = _asset;
-        _bundles[_bundleId].push(_nonce);
-
-        _asset.transferAssetFrom(msg.sender, address(this));
     }
 
 }
