@@ -465,6 +465,13 @@ contract TokenBundler_SupportsInterface_Test is Test {
         );
     }
 
+    function test_shouldSupportERC721Receiver() external {
+        assertEq(
+            bundler.supportsInterface(type(IERC721Receiver).interfaceId),
+            true
+        );
+    }
+
     function test_shouldSupportTokenBundler() external {
         assertEq(
             bundler.supportsInterface(type(ITokenBundler).interfaceId),

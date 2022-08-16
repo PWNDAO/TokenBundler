@@ -163,8 +163,9 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, IERC165) returns (bool) {
         return
-            interfaceId == type(ITokenBundler).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
+            interfaceId == type(IERC721Receiver).interfaceId ||
+            interfaceId == type(ITokenBundler).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
