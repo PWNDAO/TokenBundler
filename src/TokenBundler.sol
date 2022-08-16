@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.16;
 
 import "MultiToken/MultiToken.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
