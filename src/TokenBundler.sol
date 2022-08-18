@@ -5,10 +5,13 @@ import "MultiToken/MultiToken.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "./ITokenBundler.sol";
 
 contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundler {
     using MultiToken for MultiToken.Asset;
+    using Strings for uint256;
+    using Strings for address;
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
@@ -50,7 +53,7 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
      *      Base URI is provided by deployer, the rest is computed at construction time.
      * @param _uriBase Base URI to be used to compound metadata URI. Has to end with `/` otherwise it would compound invalid URI.
      */
-    constructor(string memory _uriBase) ERC1155(string(abi.encodePacked(_uriBase, block.chainid, "/", address(this), "/{id}/metadata"))) {
+    constructor(string memory _uriBase) ERC1155(string(abi.encodePacked(_uriBase, block.chainid.toString(), "/", address(this).toHexString(), "/{id}/metadata"))) {
 
     }
 

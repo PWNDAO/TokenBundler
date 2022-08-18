@@ -6,6 +6,7 @@ import "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC721.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC1155.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC165.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "../src/TokenBundler.sol";
 
 
@@ -14,13 +15,15 @@ import "../src/TokenBundler.sol";
 |*----------------------------------------------------------*/
 
 contract TokenBundler_Constructor_Test is Test {
+    using Strings for uint256;
+    using Strings for address;
 
     function test_shouldSetMetaUri() external {
         string memory baseMetadataUri = "https://some.test.meta.uri/";
 
         TokenBundler bundler = new TokenBundler(baseMetadataUri);
 
-        string memory metadataUri = string(abi.encodePacked(baseMetadataUri, block.chainid, "/", address(bundler), "/{id}/metadata"));
+        string memory metadataUri = string(abi.encodePacked(baseMetadataUri, block.chainid.toString(), "/", address(bundler).toHexString(), "/{id}/metadata"));
         assertEq(metadataUri, bundler.uri(1));
     }
 
