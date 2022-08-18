@@ -46,9 +46,11 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
 
     /**
      * Token Bundler constructor
-     * @param _metaUri Uri to be used for finding a bundle metadata
+     * @dev Metadata URI has a fixed format: `base_uri/chain_id/bundler_address/{id}/metadata`
+     *      Base URI is provided by deployer, the rest is computed at construction time.
+     * @param _uriBase Base URI to be used to compound metadata URI. Has to end with `/` otherwise it would compound invalid URI.
      */
-    constructor(string memory _metaUri) ERC1155(_metaUri) {
+    constructor(string memory _uriBase) ERC1155(string(abi.encodePacked(_uriBase, block.chainid, "/", address(this), "/{id}/metadata"))) {
 
     }
 

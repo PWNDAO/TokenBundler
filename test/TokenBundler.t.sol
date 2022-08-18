@@ -16,11 +16,12 @@ import "../src/TokenBundler.sol";
 contract TokenBundler_Constructor_Test is Test {
 
     function test_shouldSetMetaUri() external {
-        string memory uri = "I am a test URI for Bundler metadata with id {id}";
+        string memory baseMetadataUri = "https://some.test.meta.uri/";
 
-        TokenBundler bundler = new TokenBundler(uri);
+        TokenBundler bundler = new TokenBundler(baseMetadataUri);
 
-        assertEq(uri, bundler.uri(1));
+        string memory metadataUri = string(abi.encodePacked(baseMetadataUri, block.chainid, "/", address(bundler), "/{id}/metadata"));
+        assertEq(metadataUri, bundler.uri(1));
     }
 
 }
