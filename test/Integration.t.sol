@@ -19,7 +19,7 @@ contract IntegrationTest is Test {
 	address bob = address(0xb0b);
 
 	function setUp() external {
-		bundler = new TokenBundler("uri", 5);
+		bundler = new TokenBundler("uri");
 
 		usdc = new T20("USDC", "USDC");
 		dai = new T20("DAI", "DAI");

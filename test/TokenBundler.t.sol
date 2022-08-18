@@ -15,18 +15,10 @@ import "../src/TokenBundler.sol";
 
 contract TokenBundler_Constructor_Test is Test {
 
-    function test_shouldSetMaxSize() external {
-        uint256 maxSize = 37182377;
-
-        TokenBundler bundler = new TokenBundler("https://test.uri/", maxSize);
-
-        assertEq(maxSize, bundler.maxSize());
-    }
-
     function test_shouldSetMetaUri() external {
         string memory uri = "I am a test URI for Bundler metadata with id {id}";
 
-        TokenBundler bundler = new TokenBundler(uri, 10);
+        TokenBundler bundler = new TokenBundler(uri);
 
         assertEq(uri, bundler.uri(1));
     }
@@ -41,7 +33,6 @@ contract TokenBundler_Constructor_Test is Test {
 contract TokenBundler_Create_Test is Test {
     using stdStorage for StdStorage;
 
-    uint256 constant maxSize = 3;
     TokenBundler bundler;
     IERC20 t20;
     IERC721 t721;
@@ -52,7 +43,7 @@ contract TokenBundler_Create_Test is Test {
     event BundleCreated(uint256 indexed id, address indexed creator);
 
     function setUp() external {
-        bundler = new TokenBundler("https://test.uri/", maxSize);
+        bundler = new TokenBundler("https://test.uri/");
 
         t20 = IERC20(address(0xa66e720));
         vm.etch(address(t20), bytes("0x01"));
@@ -77,26 +68,9 @@ contract TokenBundler_Create_Test is Test {
         bundler.create(emptyAssets);
     }
 
-    function test_shouldFail_whenPassingArrayBiggerThanMaxSize() external {
-        MultiToken.Asset[] memory assets = new MultiToken.Asset[](4);
-
-        vm.expectRevert("Number of assets exceed max bundle size");
-        bundler.create(assets);
-    }
-
     function test_shouldPass_whenPassingOneAsset() external {
         MultiToken.Asset[] memory assets = new MultiToken.Asset[](1);
         assets[0] = MultiToken.Asset(MultiToken.Category.ERC20, address(t20), 0, 100e18);
-
-        vm.prank(user); // Needed so Test contract don't have to implement ERC1155Receiver
-        bundler.create(assets);
-    }
-
-    function test_shouldPass_whenPassingMaxNumberOfAssets() external {
-        MultiToken.Asset[] memory assets = new MultiToken.Asset[](3);
-        assets[0] = MultiToken.Asset(MultiToken.Category.ERC20, address(t20), 0, 100e18);
-        assets[1] = MultiToken.Asset(MultiToken.Category.ERC721, address(t721), 3212, 1);
-        assets[2] = MultiToken.Asset(MultiToken.Category.ERC1155, address(t1155), 32311, 100e18);
 
         vm.prank(user); // Needed so Test contract don't have to implement ERC1155Receiver
         bundler.create(assets);
@@ -277,7 +251,6 @@ contract TokenBundler_Create_Test is Test {
 contract TokenBundler_Unwrap_Test is Test {
     using stdStorage for StdStorage;
 
-    uint256 constant maxSize = 3;
     TokenBundler bundler;
     IERC20 t20 = IERC20(address(0xa66e720));
     IERC721 t721 = IERC721(address(0xa66e7721));
@@ -289,7 +262,7 @@ contract TokenBundler_Unwrap_Test is Test {
     event BundleUnwrapped(uint256 indexed id);
 
     function setUp() external {
-        bundler = new TokenBundler("https://test.uri/", maxSize);
+        bundler = new TokenBundler("https://test.uri/");
 
         vm.etch(address(t20), bytes("0x01"));
         vm.etch(address(t721), bytes("0x01"));
@@ -440,7 +413,7 @@ contract TokenBundler_SupportsInterface_Test is Test {
     TokenBundler bundler;
 
     function setUp() external {
-        bundler = new TokenBundler("https://test.uri/", 3);
+        bundler = new TokenBundler("https://test.uri/");
     }
 
 

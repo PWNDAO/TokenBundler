@@ -10,7 +10,7 @@ contract Deploy is Script {
 	function run() external {
 		vm.startBroadcast();
 
-        new TokenBundler("https://test.uri/", 40);
+        new TokenBundler("https://test.uri/");
 
         vm.stopBroadcast();
 	}

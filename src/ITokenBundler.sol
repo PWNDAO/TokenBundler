@@ -50,10 +50,4 @@ interface ITokenBundler {
      */
     function bundle(uint256 _bundleId) external view returns (uint256[] memory);
 
-    /**
-     * maxSize
-     * @return Maximum bundle size.
-     */
-    function maxSize() external view returns (uint256);
-
 }

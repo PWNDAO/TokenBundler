@@ -25,11 +25,6 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
     uint256 private _nonce;
 
     /**
-     * Maximum number of assets a bundle can have
-     */
-    uint256 private _maxSize;
-
-    /**
      * Mapping of bundle id to token nonce list
      */
     mapping (uint256 => uint256[]) private _bundles;
@@ -52,10 +47,9 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
     /**
      * Token Bundler constructor
      * @param _metaUri Uri to be used for finding a bundle metadata
-     * @param _bundleMaxSize Maximum bundle size Bundler can create
      */
-    constructor(string memory _metaUri, uint256 _bundleMaxSize) ERC1155(_metaUri) {
-        _maxSize = _bundleMaxSize;
+    constructor(string memory _metaUri) ERC1155(_metaUri) {
+
     }
 
 
@@ -64,7 +58,6 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
      */
     function create(MultiToken.Asset[] memory _assets) override external returns (uint256 bundleId) {
         require(_assets.length > 0, "Need to bundle at least one asset");
-        require(_assets.length <= _maxSize, "Number of assets exceed max bundle size");
 
         bundleId = ++_id;
         uint256 length = _assets.length;
@@ -117,13 +110,6 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
      */
     function bundle(uint256 _bundleId) override external view returns (uint256[] memory) {
         return _bundles[_bundleId];
-    }
-
-    /**
-     * @dev See {ITokenBundler-maxSize}.
-     */
-    function maxSize() override external view returns (uint256) {
-        return _maxSize;
     }
 
     /**
