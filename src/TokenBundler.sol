@@ -2,16 +2,15 @@
 pragma solidity 0.8.16;
 
 import "MultiToken/MultiToken.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "./ITokenBundler.sol";
 
-contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundler {
+
+contract TokenBundler is Ownable, ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundler {
     using MultiToken for MultiToken.Asset;
-    using Strings for uint256;
-    using Strings for address;
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
@@ -49,11 +48,9 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
 
     /**
      * Token Bundler constructor
-     * @dev Metadata URI has a fixed format: `base_uri/chain_id/bundler_address/{id}/metadata`
-     *      Base URI is provided by deployer, the rest is computed at construction time.
-     * @param _uriBase Base URI to be used to compound metadata URI. Has to end with `/` otherwise it would compound invalid URI.
+     * @param _uri Bundlers metadata URI
      */
-    constructor(string memory _uriBase) ERC1155(string(abi.encodePacked(_uriBase, block.chainid.toString(), "/", address(this).toHexString(), "/{id}/metadata"))) {
+    constructor(string memory _uri) ERC1155(_uri) {
 
     }
 
@@ -170,6 +167,15 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
             interfaceId == type(IERC721Receiver).interfaceId ||
             interfaceId == type(ITokenBundler).interfaceId ||
             super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * setUri
+     * @dev An non-essential setup function. Can be called to adjust the bundler token metadata URI
+     * @param _newUri setting the new origin of bundler metadata
+     */
+    function setUri(string memory _newUri) external onlyOwner {
+        _setURI(_newUri);
     }
 
 }

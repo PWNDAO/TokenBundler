@@ -6,25 +6,42 @@ import "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC721.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC1155.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC165.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "../src/TokenBundler.sol";
 
+
+contract TokenBundlerTest is Test {
+
+    bytes32 constant internal OWNER_SLOT = bytes32(uint256(0));
+    bytes32 constant internal BALANCES_SLOT = bytes32(uint256(1));
+    bytes32 constant internal ID_SLOT = bytes32(uint256(4));
+    bytes32 constant internal NONCE_SLOT = bytes32(uint256(5));
+    bytes32 constant internal BUNDLES_SLOT = bytes32(uint256(6));
+    bytes32 constant internal BUNDLED_TOKENS_SLOT = bytes32(uint256(7));
+
+}
 
 /*----------------------------------------------------------*|
 |*  # CONSTRUCTOR                                           *|
 |*----------------------------------------------------------*/
 
-contract TokenBundler_Constructor_Test is Test {
-    using Strings for uint256;
-    using Strings for address;
+contract TokenBundler_Constructor_Test is TokenBundlerTest {
 
     function test_shouldSetMetaUri() external {
-        string memory baseMetadataUri = "https://some.test.meta.uri/";
+        string memory metadataUri = "https://some.test.meta.uri/";
 
-        TokenBundler bundler = new TokenBundler(baseMetadataUri);
+        TokenBundler bundler = new TokenBundler(metadataUri);
 
-        string memory metadataUri = string(abi.encodePacked(baseMetadataUri, block.chainid.toString(), "/", address(bundler).toHexString(), "/{id}/metadata"));
         assertEq(metadataUri, bundler.uri(1));
+    }
+
+    function test_shouldSetOwner() external {
+        address owner = address(0xa11ce);
+
+        vm.prank(owner);
+        TokenBundler bundler = new TokenBundler("metadataUri");
+
+        bytes32 ownerValue = vm.load(address(bundler), OWNER_SLOT);
+        assertEq(ownerValue, bytes32(uint256(uint160(owner))));
     }
 
 }
@@ -34,8 +51,7 @@ contract TokenBundler_Constructor_Test is Test {
 |*  # CREATE                                                *|
 |*----------------------------------------------------------*/
 
-contract TokenBundler_Create_Test is Test {
-    using stdStorage for StdStorage;
+contract TokenBundler_Create_Test is TokenBundlerTest {
 
     TokenBundler bundler;
     IERC20 t20;
@@ -104,7 +120,7 @@ contract TokenBundler_Create_Test is Test {
         assets[1] = MultiToken.Asset(MultiToken.Category.ERC721, address(t721), 3212, 1);
         uint256 id = 120;
 
-        vm.store(address(bundler), bytes32(uint256(3)), bytes32(id));
+        vm.store(address(bundler), ID_SLOT, bytes32(id));
 
 
         vm.startPrank(user); // Needed so Test contract don't have to implement ERC1155Receiver
@@ -164,12 +180,12 @@ contract TokenBundler_Create_Test is Test {
         assets[1] = MultiToken.Asset(MultiToken.Category.ERC20, address(t20), 0, 100e18);
 
         uint256 nonce = 312332;
-        vm.store(address(bundler), bytes32(uint256(4)), bytes32(nonce));
+        vm.store(address(bundler), NONCE_SLOT, bytes32(nonce));
 
         vm.prank(user); // Needed so Test contract don't have to implement ERC1155Receiver
         bundler.create(assets);
 
-        bytes32 newNonce = vm.load(address(bundler), bytes32(uint256(4)));
+        bytes32 newNonce = vm.load(address(bundler), NONCE_SLOT);
         assertEq(uint256(newNonce), nonce + 2);
     }
 
@@ -179,18 +195,32 @@ contract TokenBundler_Create_Test is Test {
         assets[1] = MultiToken.Asset(MultiToken.Category.ERC721, address(t721), 3212, 1);
 
         uint256 nonce = 8376628;
-        vm.store(address(bundler), bytes32(uint256(4)), bytes32(nonce));
+        vm.store(address(bundler), NONCE_SLOT, bytes32(nonce));
 
         vm.prank(user); // Needed so Test contract don't have to implement ERC1155Receiver
         bundler.create(assets);
 
-        MultiToken.Asset memory asset1 = bundler.token(nonce + 1);
-        assertEq(MultiToken.isSameAs(assets[0], asset1), true);
-        assertEq(assets[0].amount, asset1.amount);
+        for (uint256 i; i < 2; ++i) {
+            bytes32 assetStructSlot = keccak256(
+                abi.encode( // Viz https://docs.soliditylang.org/en/v0.8.9/internals/layout_in_storage.html#mappings-and-dynamic-arrays
+                    uint256(nonce + i + 1), // Token nonce as a key in the mapping
+                    BUNDLED_TOKENS_SLOT // Position of the mapping
+                )
+            );
 
-        MultiToken.Asset memory asset2 = bundler.token(nonce + 2);
-        assertEq(MultiToken.isSameAs(assets[1], asset2), true);
-        assertEq(assets[1].amount, asset2.amount);
+            uint256 addrAndCategorySlot = uint256(assetStructSlot) + 0;
+            bytes32 addrAndCategoryValue = vm.load(address(bundler), bytes32(addrAndCategorySlot));
+            uint256 addrAndCategoryExpectedValue = (uint256(uint160(assets[i].assetAddress)) << 8) | uint8(assets[i].category);
+            assertEq(addrAndCategoryValue, bytes32(addrAndCategoryExpectedValue));
+
+            uint256 idSlot = uint256(assetStructSlot) + 1;
+            bytes32 idValue = vm.load(address(bundler), bytes32(idSlot));
+            assertEq(idValue, bytes32(assets[i].id));
+
+            uint256 amountSlot = uint256(assetStructSlot) + 2;
+            bytes32 amountValue = vm.load(address(bundler), bytes32(amountSlot));
+            assertEq(amountValue, bytes32(assets[i].amount));
+        }
     }
 
     function test_shouldPushAssetNonceToBundleAssetArray() external {
@@ -199,14 +229,27 @@ contract TokenBundler_Create_Test is Test {
         assets[1] = MultiToken.Asset(MultiToken.Category.ERC721, address(t721), 3212, 1);
 
         uint256 nonce = 8376628;
-        vm.store(address(bundler), bytes32(uint256(4)), bytes32(nonce));
+        vm.store(address(bundler), NONCE_SLOT, bytes32(nonce));
 
         vm.prank(user); // Needed so Test contract don't have to implement ERC1155Receiver
         uint256 bundleId = bundler.create(assets);
 
-        uint256[] memory tokenIds = bundler.bundle(bundleId);
-        assertEq(tokenIds[0], nonce + 1);
-        assertEq(tokenIds[1], nonce + 2);
+        bytes32 arraySlot = keccak256(
+            abi.encode( // Viz https://docs.soliditylang.org/en/v0.8.9/internals/layout_in_storage.html#mappings-and-dynamic-arrays
+                bundleId, // Bundle id as a key in the mapping
+                BUNDLES_SLOT // Position of the mapping
+            )
+        );
+        // Check array length eq 2
+        bytes32 bundleLenghtValue = vm.load(address(bundler), arraySlot);
+        assertEq(bundleLenghtValue, bytes32(uint256(2)));
+
+        bytes32 firstElementSlot = keccak256(abi.encode(arraySlot));
+        for (uint256 i; i < 2; ++i) {
+            uint256 tokenSlot = uint256(firstElementSlot) + i;
+            bytes32 tokenValue = vm.load(address(bundler), bytes32(tokenSlot));
+            assertEq(tokenValue, bytes32(nonce + i + 1));
+        }
     }
 
     function test_shouldTransferAssetToBundlerContract() external {
@@ -252,8 +295,7 @@ contract TokenBundler_Create_Test is Test {
 |*  # UNWRAP                                                *|
 |*----------------------------------------------------------*/
 
-contract TokenBundler_Unwrap_Test is Test {
-    using stdStorage for StdStorage;
+contract TokenBundler_Unwrap_Test is TokenBundlerTest {
 
     TokenBundler bundler;
     IERC20 t20 = IERC20(address(0xa66e720));
@@ -329,22 +371,25 @@ contract TokenBundler_Unwrap_Test is Test {
         vm.prank(user);
         bundler.unwrap(bundleId);
 
-        for (uint256 i = 1; i < 4; ++i) {
+        for (uint256 i; i < 3; ++i) {
             bytes32 assetStructSlot = keccak256(
                 abi.encode( // Viz https://docs.soliditylang.org/en/v0.8.9/internals/layout_in_storage.html#mappings-and-dynamic-arrays
-                    uint256(i), // Token nonce as a key in the mapping
-                    uint256(7) // Position of the mapping
+                    uint256(i + 1), // Token nonce as a key in the mapping
+                    BUNDLED_TOKENS_SLOT // Position of the mapping
                 )
             );
 
             uint256 addrAndCategorySlot = uint256(assetStructSlot) + 0;
-            assertEq(vm.load(address(bundler), bytes32(addrAndCategorySlot)), bytes32(0));
+            bytes32 addrAndCategoryValue = vm.load(address(bundler), bytes32(addrAndCategorySlot));
+            assertEq(addrAndCategoryValue, bytes32(0));
 
             uint256 idSlot = uint256(assetStructSlot) + 1;
-            assertEq(vm.load(address(bundler), bytes32(idSlot)), bytes32(0));
+            bytes32 idValue = vm.load(address(bundler), bytes32(idSlot));
+            assertEq(idValue, bytes32(0));
 
             uint256 amountSlot = uint256(assetStructSlot) + 2;
-            assertEq(vm.load(address(bundler), bytes32(amountSlot)), bytes32(0));
+            bytes32 amountValue = vm.load(address(bundler), bytes32(amountSlot));
+            assertEq(amountValue, bytes32(0));
         }
     }
 
@@ -355,17 +400,19 @@ contract TokenBundler_Unwrap_Test is Test {
         bytes32 arraySlot = keccak256(
             abi.encode( // Viz https://docs.soliditylang.org/en/v0.8.9/internals/layout_in_storage.html#mappings-and-dynamic-arrays
                 bundleId, // Bundle id as a key in the mapping
-                uint256(6) // Position of the mapping
+                BUNDLES_SLOT // Position of the mapping
             )
         );
-        assertEq(vm.load(address(bundler), bytes32(arraySlot)), bytes32(0));
+        // Check array length eq 0
+        bytes32 bundleLenghtValue = vm.load(address(bundler), arraySlot);
+        assertEq(bundleLenghtValue, bytes32(0));
 
         bytes32 firstElementSlot = keccak256(abi.encode(arraySlot));
-
         for (uint256 i; i < 3; ++i) {
-            bytes32 tokenSlot = vm.load(address(bundler), bytes32(uint256(firstElementSlot) + i));
+            uint256 tokenSlot = uint256(firstElementSlot) + i;
+            bytes32 tokenValue = vm.load(address(bundler), bytes32(tokenSlot));
 
-            assertEq(vm.load(address(bundler), bytes32(tokenSlot)), bytes32(0));
+            assertEq(tokenValue, bytes32(0));
         }
     }
 
@@ -375,8 +422,8 @@ contract TokenBundler_Unwrap_Test is Test {
 
         bytes32 tokenBalancesSlot = keccak256(
             abi.encode( // Viz https://docs.soliditylang.org/en/v0.8.9/internals/layout_in_storage.html#mappings-and-dynamic-arrays
-                uint256(bundleId), // Bundle id as a key in the mapping
-                uint256(0) // Position of balances mapping
+                bundleId, // Bundle id as a key in the mapping
+                BALANCES_SLOT // Position of balances mapping
             )
         );
         bytes32 userBalanceSlot = keccak256(
@@ -412,7 +459,7 @@ contract TokenBundler_Unwrap_Test is Test {
 |*  # SUPPORTS INTERFACE                                    *|
 |*----------------------------------------------------------*/
 
-contract TokenBundler_SupportsInterface_Test is Test {
+contract TokenBundler_SupportsInterface_Test is TokenBundlerTest {
 
     TokenBundler bundler;
 
@@ -454,6 +501,30 @@ contract TokenBundler_SupportsInterface_Test is Test {
             bundler.supportsInterface(type(ITokenBundler).interfaceId),
             true
         );
+    }
+
+}
+
+
+/*----------------------------------------------------------*|
+|*  # SET URI                                               *|
+|*----------------------------------------------------------*/
+
+contract TokenBundler_SetUri_Test is TokenBundlerTest {
+
+    TokenBundler bundler;
+
+    function setUp() external {
+        bundler = new TokenBundler("https://test.uri/");
+    }
+
+
+    function test_shouldSetNewUri() external {
+        string memory newUri = "new uri";
+
+        bundler.setUri(newUri);
+
+        assertEq(bundler.uri(1), newUri);
     }
 
 }
