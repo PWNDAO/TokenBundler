@@ -62,10 +62,10 @@ contract TokenBundler is ERC1155, IERC1155Receiver, IERC721Receiver, ITokenBundl
      * @dev See {ITokenBundler-create}.
      */
     function create(MultiToken.Asset[] memory _assets) override external returns (uint256 bundleId) {
-        require(_assets.length > 0, "Need to bundle at least one asset");
+        uint256 length = _assets.length;
+        require(length > 0, "Need to bundle at least one asset");
 
         bundleId = ++_id;
-        uint256 length = _assets.length;
         for (uint i; i < length;) {
             _tokens[++_nonce] = _assets[i];
             _bundles[bundleId].push(_nonce);
