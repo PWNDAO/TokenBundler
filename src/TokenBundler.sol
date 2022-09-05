@@ -124,11 +124,12 @@ contract TokenBundler is Ownable, ERC1155, IERC1155Receiver, IERC721Receiver, IT
      * @dev See {IERC721Receiver-onERC721Received}.
      */
     function onERC721Received(
-        address /*operator*/,
+        address operator,
         address /*from*/,
         uint256 /*tokenId*/,
         bytes calldata /*data*/
-    ) override external pure returns (bytes4) {
+    ) override external view returns (bytes4) {
+        require(operator == address(this), "Unsupported transfer function");
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -136,12 +137,13 @@ contract TokenBundler is Ownable, ERC1155, IERC1155Receiver, IERC721Receiver, IT
      * @dev See {IERC1155Receiver-onERC1155Received}.
      */
     function onERC1155Received(
-        address /*operator*/,
+        address operator,
         address /*from*/,
         uint256 /*id*/,
         uint256 /*value*/,
         bytes calldata /*data*/
-    ) override external pure returns (bytes4) {
+    ) override external view returns (bytes4) {
+        require(operator == address(this), "Unsupported transfer function");
         return 0xf23a6e61;
     }
 
@@ -155,7 +157,7 @@ contract TokenBundler is Ownable, ERC1155, IERC1155Receiver, IERC721Receiver, IT
         uint256[] calldata /*values*/,
         bytes calldata /*data*/
     ) override external pure returns (bytes4) {
-        return 0xbc197c81;
+        revert("Unsupported transfer function");
     }
 
     /**
