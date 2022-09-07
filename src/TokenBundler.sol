@@ -121,6 +121,24 @@ contract TokenBundler is Ownable, ERC1155, IERC1155Receiver, IERC721Receiver, IT
     }
 
     /**
+     * @dev See {ITokenBundler-tokensInBundle}.
+     */
+    function tokensInBundle(uint256 _bundleId) override external view returns (MultiToken.Asset[] memory) {
+        uint256[] memory tokenList = _bundles[_bundleId];
+        uint256 length = tokenList.length;
+
+        MultiToken.Asset[] memory tokens = new MultiToken.Asset[](length);
+
+        for (uint256 i; i < length;) {
+            tokens[i] = _tokens[tokenList[i]];
+
+            unchecked { ++i; }
+        }
+
+        return tokens;
+    }
+
+    /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
     function onERC721Received(

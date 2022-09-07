@@ -50,4 +50,11 @@ interface ITokenBundler {
      */
     function bundle(uint256 _bundleId) external view returns (uint256[] memory);
 
+    /**
+     * tokensInBundle
+     * @param _bundleId Bundle id.
+     * @return List of MultiToken.Asset structs in a bundle.
+     */
+    function tokensInBundle(uint256 _bundleId) external view returns (MultiToken.Asset[] memory);
+
 }
