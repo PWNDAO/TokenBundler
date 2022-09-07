@@ -456,6 +456,52 @@ contract TokenBundler_Unwrap_Test is TokenBundlerTest {
 
 
 /*----------------------------------------------------------*|
+|*  # TRANSFER HOOKS                                        *|
+|*----------------------------------------------------------*/
+
+contract TokenBundler_TransferHooks_Test is TokenBundlerTest {
+
+    TokenBundler bundler;
+
+    function setUp() external {
+        bundler = new TokenBundler("https://test.uri/");
+    }
+
+
+    function test_shouldFail_whenOnERC721Received_whenOperatorIsNotBundle() external {
+        vm.expectRevert("Unsupported transfer function");
+        bundler.onERC721Received(address(0x01), address(0x02), 42, "data");
+    }
+
+    function test_shouldReturnCorrectValue_whenOnERC721Received() external {
+        bytes4 value = bundler.onERC721Received(address(bundler), address(0x02), 42, "data");
+
+        assertTrue(value == 0x150b7a02);
+    }
+
+    function test_shouldFail_whenOnERC1155Received_whenOperatorIsNotBundle() external {
+        vm.expectRevert("Unsupported transfer function");
+        bundler.onERC1155Received(address(0x01), address(0x02), 42, 100, "data");
+    }
+
+    function test_shouldReturnCorrectValue_whenOnERC1155Received() external {
+        bytes4 value = bundler.onERC1155Received(address(bundler), address(0x02), 42, 100, "data");
+
+        assertTrue(value == 0xf23a6e61);
+    }
+
+    function test_shouldFail_whenOnERC1155BatchReceived() external {
+        uint256[] memory ids;
+        uint256[] memory amounts;
+
+        vm.expectRevert("Unsupported transfer function");
+        bundler.onERC1155BatchReceived(address(0x01), address(0x02), ids, amounts, "data");
+    }
+
+}
+
+
+/*----------------------------------------------------------*|
 |*  # SUPPORTS INTERFACE                                    *|
 |*----------------------------------------------------------*/
 
@@ -525,52 +571,6 @@ contract TokenBundler_SetUri_Test is TokenBundlerTest {
         bundler.setUri(newUri);
 
         assertEq(bundler.uri(1), newUri);
-    }
-
-}
-
-
-/*----------------------------------------------------------*|
-|*  # TRANSFER HOOKS                                        *|
-|*----------------------------------------------------------*/
-
-contract TokenBundler_TransferHooks_Test is TokenBundlerTest {
-
-    TokenBundler bundler;
-
-    function setUp() external {
-        bundler = new TokenBundler("https://test.uri/");
-    }
-
-
-    function test_shouldFail_whenOnERC721Received_whenOperatorIsNotBundle() external {
-        vm.expectRevert("Unsupported transfer function");
-        bundler.onERC721Received(address(0x01), address(0x02), 42, "data");
-    }
-
-    function test_shouldReturnCorrectValue_whenOnERC721Received() external {
-        bytes4 value = bundler.onERC721Received(address(bundler), address(0x02), 42, "data");
-
-        assertTrue(value == 0x150b7a02);
-    }
-
-    function test_shouldFail_whenOnERC1155Received_whenOperatorIsNotBundle() external {
-        vm.expectRevert("Unsupported transfer function");
-        bundler.onERC1155Received(address(0x01), address(0x02), 42, 100, "data");
-    }
-
-    function test_shouldReturnCorrectValue_whenOnERC1155Received() external {
-        bytes4 value = bundler.onERC1155Received(address(bundler), address(0x02), 42, 100, "data");
-
-        assertTrue(value == 0xf23a6e61);
-    }
-
-    function test_shouldFail_whenOnERC1155BatchReceived() external {
-        uint256[] memory ids;
-        uint256[] memory amounts;
-
-        vm.expectRevert("Unsupported transfer function");
-        bundler.onERC1155BatchReceived(address(0x01), address(0x02), ids, amounts, "data");
     }
 
 }
