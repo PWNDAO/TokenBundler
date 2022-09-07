@@ -68,6 +68,14 @@ contract IntegrationTest is Test {
 		vm.prank(alice);
 		bundler.safeTransferFrom(alice, bob, bundleId, 1, "");
 
+		MultiToken.Asset[] memory assetsInBundle = bundler.tokensInBundle(bundleId);
+		for (uint256 i; i < assetsInBundle.length; ++i) {
+			assertTrue(assetsInBundle[i].category == assets[i].category);
+			assertTrue(assetsInBundle[i].assetAddress == assets[i].assetAddress);
+			assertTrue(assetsInBundle[i].id == assets[i].id);
+			assertTrue(assetsInBundle[i].amount == assets[i].amount);
+		}
+
 		vm.prank(bob);
 		bundler.unwrap(bundleId);
 
