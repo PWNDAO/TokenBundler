@@ -23,7 +23,7 @@ contract Deploy is Script {
         vm.startBroadcast();
 
         string memory tokenUri = ""; // Set token metadata uri
-        address owner = address(0x); // Set token bundle owner (don't have to be the same as deployer)
+        address owner = address(0x0); // Set token bundle owner (don't have to be the same as deployer)
 
         TokenBundler bundler = new TokenBundler(tokenUri);
         bundler.transferOwnership(owner);
