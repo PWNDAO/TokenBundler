@@ -6,7 +6,7 @@ import "MultiToken/MultiToken.sol";
 import "./IERC5646.sol";
 
 
-interface ITokenBundler is IERC5646 {
+interface ITokenBundle is IERC5646 {
 
     event BundleLocked(uint256 indexed bundleId, uint256 nonce);
     event BundleUnlocked(uint256 indexed bundleId);

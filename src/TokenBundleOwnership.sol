@@ -5,28 +5,28 @@ import "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 import "./interfaces/IERC5646.sol";
-import "./TokenBundler.sol";
+import "./TokenBundle.sol";
 
 
 // TODO: Optimize gas
-contract TokenBundlerOwnership is ERC721, IERC5646 {
+contract TokenBundleOwnership is ERC721, IERC5646 {
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
     |*----------------------------------------------------------*/
 
-    TokenBundler public immutable singleton;
+    TokenBundle public immutable singleton;
 
-    event TokenBundlerDeployed(address indexed bundler);
+    event TokenBundleDeployed(address indexed bundler);
 
 
     /*----------------------------------------------------------*|
     |*  # CONSTRUCTOR                                           *|
     |*----------------------------------------------------------*/
 
-    constructor() ERC721("PWN Bundler Ownership", "TBO") {
+    constructor() ERC721("PWN Bundle Ownership", "TBO") {
         // Deploy bundle bundle singleton for future clone referance
-        singleton = new TokenBundler();
+        singleton = new TokenBundle();
         singleton.initialize(address(this));
     }
 
@@ -37,13 +37,13 @@ contract TokenBundlerOwnership is ERC721, IERC5646 {
 
     // Mint new token only for a new bundle.
     // Bundle cannot be destroyed and token cannot be burned.
-    function deployBundler() external returns (TokenBundler bundler) {
-        bundler = TokenBundler(Clones.clone(address(singleton)));
-        bundler.initialize(address(this));
+    function deployBundle() external returns (TokenBundle bundle) {
+        bundle = TokenBundle(Clones.clone(address(singleton)));
+        bundle.initialize(address(this));
 
-        _mint(msg.sender, uint256(uint160(address(bundler))));
+        _mint(msg.sender, uint256(uint160(address(bundle))));
 
-        emit TokenBundlerDeployed(address(bundler));
+        emit TokenBundleDeployed(address(bundle));
     }
 
 

@@ -5,19 +5,19 @@ import "MultiToken/MultiToken.sol";
 
 import "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 
-import "./interfaces/ITokenBundler.sol";
+import "./interfaces/ITokenBundle.sol";
 import "./TokenReceiver.sol";
-import "./TokenBundlerOwnership.sol";
+import "./TokenBundleOwnership.sol";
 
 
-contract TokenBundler is Initializable, TokenReceiver, ITokenBundler {
+contract TokenBundle is Initializable, TokenReceiver, ITokenBundle {
     using MultiToken for MultiToken.Asset;
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
     |*----------------------------------------------------------*/
 
-    TokenBundlerOwnership public ownershipContract;
+    TokenBundleOwnership public ownershipContract;
     bool public isLocked;
     uint256 public nonce;
 
@@ -46,7 +46,7 @@ contract TokenBundler is Initializable, TokenReceiver, ITokenBundler {
     }
 
     function initialize(address _ownershipContract) external initializer {
-        ownershipContract = TokenBundlerOwnership(_ownershipContract);
+        ownershipContract = TokenBundleOwnership(_ownershipContract);
     }
 
 
@@ -92,7 +92,7 @@ contract TokenBundler is Initializable, TokenReceiver, ITokenBundler {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return
-            interfaceId == type(ITokenBundler).interfaceId ||
+            interfaceId == type(ITokenBundle).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
