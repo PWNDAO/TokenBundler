@@ -17,58 +17,71 @@ contract TokenBundler is Initializable, TokenReceiver, ITokenBundler {
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
     |*----------------------------------------------------------*/
 
-    uint256 public immutable bundleId;
-
-    bool public isLocked;
-    uint256 public nonce; // TODO: Try to make it 31 bytes to fit in one word
     TokenBundlerOwnership public ownershipContract;
+    bool public isLocked;
+    uint256 public nonce;
+
+
+    /*----------------------------------------------------------*|
+    |*  # MODIFIERS                                             *|
+    |*----------------------------------------------------------*/
 
     modifier onlyOwner() {
-        require(ownershipContract.ownerOf(bundleId) == msg.sender, "Caller is not the bundle owner");
+        require(ownershipContract.ownerOf(_bundleId()) == msg.sender, "Caller is not the bundle owner");
         _;
     }
 
+    modifier onlyUnlocked() {
+        require(isLocked == false, "Bundle is locked");
+        _;
+    }
+
+
     /*----------------------------------------------------------*|
-    |*  # CONSTRUCTOR & FUNCTIONS                               *|
+    |*  # CONSTRUCTOR & INITIALIZER                             *|
     |*----------------------------------------------------------*/
 
     constructor() {
-        bundleId = uint256(uint160(address(this)));
+
     }
 
-    function initialize(address owner, address _ownershipContract) external initializer {
+    function initialize(address _ownershipContract) external initializer {
         ownershipContract = TokenBundlerOwnership(_ownershipContract);
-        ownershipContract.mintOwnership(owner); // User function parameter instead?
     }
 
+
+    /*----------------------------------------------------------*|
+    |*  # LOCK & UNLOCK                                         *|
+    |*----------------------------------------------------------*/
 
     function lock() external onlyOwner {
         require(isLocked == false, "Bundle is already locked");
         isLocked = true;
         nonce += 1;
 
-        emit BundleLocked(bundleId, nonce);
+        emit BundleLocked(_bundleId(), nonce);
     }
 
     function unlock() external onlyOwner {
         require(isLocked == true, "Bundle is not locked");
         isLocked = false;
 
-        emit BundleUnlocked(bundleId);
+        emit BundleUnlocked(_bundleId());
     }
 
-    function withdraw(MultiToken.Asset memory asset) external onlyOwner {
-        require(isLocked == false, "Bundle is locked");
 
-        asset.transferAsset(msg.sender); // TODO: Let owner withdraw to any address?
+    /*----------------------------------------------------------*|
+    |*  # WITHDRAWALS                                           *|
+    |*----------------------------------------------------------*/
+
+    function withdraw(MultiToken.Asset memory asset) external onlyOwner onlyUnlocked {
+        asset.transferAsset(msg.sender);
     }
 
-    function withdrawSet(MultiToken.Asset[] memory assets) external onlyOwner {
-        require(isLocked == false, "Bundle is locked");
-
+    function withdrawBatch(MultiToken.Asset[] memory assets) external onlyOwner onlyUnlocked {
         uint256 length = assets.length;
         for (uint256 i; i < length; ) {
-            assets[i].transferAsset(msg.sender); // TODO: Let owner withdraw to any address?
+            assets[i].transferAsset(msg.sender);
             unchecked { ++i; }
         }
     }
@@ -83,10 +96,14 @@ contract TokenBundler is Initializable, TokenReceiver, ITokenBundler {
             super.supportsInterface(interfaceId);
     }
 
-
     function getStateFingerprint(uint256 tokenId) external view returns (bytes32) {
-        require(tokenId == bundleId, "Invalid token id");
+        require(tokenId == _bundleId(), "Invalid token id");
         return keccak256(abi.encode(isLocked, nonce));
+    }
+
+
+    function _bundleId() private view returns (uint256) {
+        return uint256(uint160(address(this)));
     }
 
 }

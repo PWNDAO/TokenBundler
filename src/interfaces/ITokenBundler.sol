@@ -11,10 +11,13 @@ interface ITokenBundler is IERC5646 {
     event BundleLocked(uint256 indexed bundleId, uint256 nonce);
     event BundleUnlocked(uint256 indexed bundleId);
 
-    function lock() external;
+    function isLocked() external returns (bool);
+    function nonce() external returns (uint256);
 
+    function lock() external;
     function unlock() external;
 
     function withdraw(MultiToken.Asset memory asset) external;
+    function withdrawBatch(MultiToken.Asset[] memory assets) external;
 
 }
