@@ -1,7 +1,7 @@
 {
   "name": "@pwnfinance/token-bundler",
-  "version": "1.0.0",
-  "description": "Enables to bundle ERC20, ERC721, ERC1155 into a single ERC1155 token.",
+  "version": "2.0.0",
+  "description": "Enables to bundle ERC20, ERC721, ERC1155 into a single ERC721 token.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PWNFinance/TokenBundler.git"
@@ -13,10 +13,6 @@
     "ERC",
     "bundler",
     "bundle"
-  ],
-  "files": [
-    "src/ITokenBundler.sol",
-    "src/TokenBundler.sol"
   ],
   "author": "PWN Finance",
   "license": "MIT",
