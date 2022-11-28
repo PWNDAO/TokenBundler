@@ -8,26 +8,30 @@ import "./interfaces/IERC5646.sol";
 import "./TokenBundle.sol";
 
 
-// TODO: Optimize gas
+// TODO: Optimize gas (use ERC1155D?)
 contract TokenBundleOwnership is ERC721, IERC5646 {
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
     |*----------------------------------------------------------*/
 
-    TokenBundle public immutable singleton;
+    address public immutable singleton;
 
-    event TokenBundleDeployed(address indexed bundler);
+
+    /*----------------------------------------------------------*|
+    |*  # EVENTS DEFINITIONS                                    *|
+    |*----------------------------------------------------------*/
+
+    event TokenBundleDeployed(address indexed bundle);
 
 
     /*----------------------------------------------------------*|
     |*  # CONSTRUCTOR                                           *|
     |*----------------------------------------------------------*/
 
-    constructor() ERC721("PWN Bundle Ownership", "TBO") {
-        // Deploy bundle bundle singleton for future clone referance
-        singleton = new TokenBundle();
-        singleton.initialize(address(this));
+    constructor(address _singleton) ERC721("PWN Token Bundle Ownership", "BUNDLE") {
+        require(keccak256(_singleton.code) == keccak256(type(TokenBundle).runtimeCode), "Invalid singleton address");
+        singleton = _singleton;
     }
 
 
@@ -37,13 +41,15 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
 
     // Mint new token only for a new bundle.
     // Bundle cannot be destroyed and token cannot be burned.
-    function deployBundle() external returns (TokenBundle bundle) {
-        bundle = TokenBundle(Clones.clone(address(singleton)));
-        bundle.initialize(address(this));
+    function deployBundle() external returns (TokenBundle) {
+        address bundle = Clones.clone(singleton);
+        TokenBundle(bundle).initialize(address(this));
 
-        _mint(msg.sender, uint256(uint160(address(bundle))));
+        _mint(msg.sender, uint256(uint160(bundle)));
 
-        emit TokenBundleDeployed(address(bundle));
+        emit TokenBundleDeployed(bundle);
+
+        return TokenBundle(bundle);
     }
 
 
@@ -66,7 +72,9 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
     |*----------------------------------------------------------*/
 
     function getStateFingerprint(uint256 tokenId) external view returns (bytes32) {
+        require(tokenId <= type(uint160).max, "Invalid token id");
         require(_exists(tokenId) == true, "Invalid token id");
+
         return IERC5646(address(uint160(tokenId))).getStateFingerprint(tokenId);
     }
 
