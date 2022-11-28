@@ -8,13 +8,20 @@ import "./interfaces/IERC5646.sol";
 import "./TokenBundle.sol";
 
 
-// TODO: Optimize gas (use ERC1155D?)
+/**
+ * @title Token Bundle Ownership
+ * @notice Token representing ownership of a Token Bundle.
+ * @dev Works as a Token Bundle factory.
+ */
 contract TokenBundleOwnership is ERC721, IERC5646 {
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
     |*----------------------------------------------------------*/
 
+    /**
+     * @dev Address of the singleton Token Bundle. Is used as a origin for cloning.
+     */
     address public immutable singleton;
 
 
@@ -22,6 +29,9 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
     |*  # EVENTS DEFINITIONS                                    *|
     |*----------------------------------------------------------*/
 
+    /**
+     * @dev Emitted when new bundle is deployed.
+     */
     event TokenBundleDeployed(address indexed bundle);
 
 
@@ -39,8 +49,11 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
     |*  # TOKEN BUNDLE FACTORY                                  *|
     |*----------------------------------------------------------*/
 
-    // Mint new token only for a new bundle.
-    // Bundle cannot be destroyed and token cannot be burned.
+    /**
+     * @notice Deploy new Token Bundle and mint ownership token for a caller.
+     * @dev New ownership token is minted only for a new Token Bundle. Bundle cannot be destroyed and token cannot be burned.
+     * @return Newly deployed Token Bundle address.
+     */
     function deployBundle() external returns (TokenBundle) {
         address bundle = Clones.clone(singleton);
         TokenBundle(bundle).initialize(address(this));
@@ -71,6 +84,9 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
     |*  # ERC5646                                               *|
     |*----------------------------------------------------------*/
 
+    /**
+     * @dev See {IERC5646-getStateFingerprint}.
+     */
     function getStateFingerprint(uint256 tokenId) external view returns (bytes32) {
         require(tokenId <= type(uint160).max, "Invalid token id");
         require(_exists(tokenId) == true, "Invalid token id");
