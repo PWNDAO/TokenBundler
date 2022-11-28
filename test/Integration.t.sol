@@ -1,88 +1,46 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
-import "../src/test/T20.sol";
-import "../src/test/T721.sol";
-import "../src/test/T1155.sol";
-import "../src/TokenBundler.sol";
+
+import "MultiToken/MultiToken.sol";
+
+import "./tokens/T20.sol";
+import "../src/TokenBundleOwnership.sol";
+import "../src/TokenBundle.sol";
 
 
 contract IntegrationTest is Test {
 
-	TokenBundler bundler;
-	T20 usdc;
-	T20 dai;
-	T721 nft;
-	T1155 game;
-	address alice = address(0xa11ce);
-	address bob = address(0xb0b);
+    T20 t20;
+    TokenBundleOwnership ownership;
+    address owner = address(0x1001);
 
-	function setUp() external {
-		bundler = new TokenBundler("uri");
+    function setUp() external {
+        t20 = new T20("PWN", "PWN");
 
-		usdc = new T20("USDC", "USDC");
-		dai = new T20("DAI", "DAI");
-		nft = new T721("NFT", "NFT");
-		game = new T1155("uri");
-	}
+        TokenBundle singleton = new TokenBundle();
+        singleton.initialize(address(0));
+        ownership = new TokenBundleOwnership(address(singleton));
+    }
 
+    function test_gas() external {
+        t20.mint(owner, 100e18);
 
-	function test_createBundleByAlice_transferToBob_unwrapByBob() external {
-		usdc.mint(alice, 100e18);
-		dai.mint(alice, 300e18);
-		nft.mint(alice, 42);
-		game.mint(alice, 142, 100, "");
+        vm.prank(owner);
+        TokenBundle bundle = ownership.deployBundle();
 
-		vm.startPrank(alice);
-		usdc.approve(address(bundler), 100e18);
-		dai.approve(address(bundler), 300e18);
-		nft.approve(address(bundler), 42);
-		game.setApprovalForAll(address(bundler), true);
-		vm.stopPrank();
+        vm.prank(owner);
+        t20.transfer(address(bundle), 100e18);
 
-		assertEq(usdc.balanceOf(alice), 100e18);
-		assertEq(dai.balanceOf(alice), 300e18);
-		assertEq(nft.ownerOf(42), alice);
-		assertEq(game.balanceOf(alice, 142), 100);
+        vm.prank(owner);
+        bundle.lock();
 
-		MultiToken.Asset[] memory assets = new MultiToken.Asset[](5);
-		assets[0] = MultiToken.Asset(MultiToken.Category.ERC721, address(nft), 42, 1);
-		assets[1] = MultiToken.Asset(MultiToken.Category.ERC20, address(usdc), 0, 100e18);
-		assets[2] = MultiToken.Asset(MultiToken.Category.ERC20, address(dai), 0, 100e18);
-		assets[3] = MultiToken.Asset(MultiToken.Category.ERC1155, address(game), 142, 100);
-		assets[4] = MultiToken.Asset(MultiToken.Category.ERC20, address(dai), 0, 200e18);
+        vm.prank(owner);
+        bundle.unlock();
 
-		vm.prank(alice);
-		uint256 bundleId = bundler.create(assets);
-
-		assertEq(usdc.balanceOf(address(bundler)), 100e18);
-		assertEq(dai.balanceOf(address(bundler)), 300e18);
-		assertEq(nft.ownerOf(42), address(bundler));
-		assertEq(game.balanceOf(address(bundler), 142), 100);
-
-		assertEq(usdc.balanceOf(alice), 0);
-		assertEq(dai.balanceOf(alice), 0);
-		assertEq(game.balanceOf(alice, 142), 0);
-
-		vm.prank(alice);
-		bundler.safeTransferFrom(alice, bob, bundleId, 1, "");
-
-		MultiToken.Asset[] memory assetsInBundle = bundler.tokensInBundle(bundleId);
-		for (uint256 i; i < assetsInBundle.length; ++i) {
-			assertTrue(assetsInBundle[i].category == assets[i].category);
-			assertTrue(assetsInBundle[i].assetAddress == assets[i].assetAddress);
-			assertTrue(assetsInBundle[i].id == assets[i].id);
-			assertTrue(assetsInBundle[i].amount == assets[i].amount);
-		}
-
-		vm.prank(bob);
-		bundler.unwrap(bundleId);
-
-		assertEq(usdc.balanceOf(bob), 100e18);
-		assertEq(dai.balanceOf(bob), 300e18);
-		assertEq(nft.ownerOf(42), bob);
-		assertEq(game.balanceOf(bob, 142), 100);
-	}
+        vm.prank(owner);
+        bundle.withdraw(MultiToken.Asset(MultiToken.Category.ERC20, address(t20), 0, 100e18));
+    }
 
 }
