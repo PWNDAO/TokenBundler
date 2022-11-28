@@ -6,11 +6,12 @@ import "MultiToken/MultiToken.sol";
 import "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 
 import "./interfaces/ITokenBundle.sol";
+import "./interfaces/IERC5646.sol";
 import "./TokenReceiver.sol";
 import "./TokenBundleOwnership.sol";
 
 
-contract TokenBundle is Initializable, TokenReceiver, ITokenBundle {
+contract TokenBundle is Initializable, TokenReceiver, ITokenBundle, IERC5646 {
     using MultiToken for MultiToken.Asset;
 
     /*----------------------------------------------------------*|
@@ -93,11 +94,13 @@ contract TokenBundle is Initializable, TokenReceiver, ITokenBundle {
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return
             interfaceId == type(ITokenBundle).interfaceId ||
+            interfaceId == type(IERC5646).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
     function getStateFingerprint(uint256 tokenId) external view returns (bytes32) {
         require(tokenId == _bundleId(), "Invalid token id");
+
         return keccak256(abi.encode(isLocked, nonce));
     }
 

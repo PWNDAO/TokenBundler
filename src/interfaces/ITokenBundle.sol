@@ -3,10 +3,8 @@ pragma solidity 0.8.16;
 
 import "MultiToken/MultiToken.sol";
 
-import "./IERC5646.sol";
 
-
-interface ITokenBundle is IERC5646 {
+interface ITokenBundle {
 
     event BundleLocked(uint256 indexed bundleId, uint256 nonce);
     event BundleUnlocked(uint256 indexed bundleId);
