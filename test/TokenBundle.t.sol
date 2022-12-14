@@ -229,7 +229,7 @@ contract TokenBundle_Withdraw_Test is TokenBundleTest {
     function test_shouldTransferAssetFromBundleToOwner() external {
         vm.expectCall(
             token,
-            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", address(bundle), address(owner), tokenId)
+            abi.encodeWithSignature("safeTransferFrom(address,address,uint256,bytes)", address(bundle), address(owner), tokenId, "")
         );
 
         vm.prank(owner);
@@ -269,11 +269,11 @@ contract TokenBundle_WithdrawBatch_Test is TokenBundleTest {
 
         vm.expectCall(
             token,
-            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", address(bundle), address(owner), 42)
+            abi.encodeWithSignature("safeTransferFrom(address,address,uint256,bytes)", address(bundle), address(owner), 42, "")
         );
         vm.expectCall(
             token,
-            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", address(bundle), address(owner), 43)
+            abi.encodeWithSignature("safeTransferFrom(address,address,uint256,bytes)", address(bundle), address(owner), 43, "")
         );
 
         vm.prank(owner);
@@ -297,11 +297,11 @@ contract TokenBundle_DepositBatch_Test is TokenBundleTest {
 
         vm.expectCall(
             token,
-            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", depositor, address(bundle), 42)
+            abi.encodeWithSignature("transferFrom(address,address,uint256)", depositor, address(bundle), 42)
         );
         vm.expectCall(
             token,
-            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", depositor, address(bundle), 43)
+            abi.encodeWithSignature("transferFrom(address,address,uint256)", depositor, address(bundle), 43)
         );
 
         vm.prank(depositor);

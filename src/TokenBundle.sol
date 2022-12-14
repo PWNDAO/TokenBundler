@@ -103,7 +103,7 @@ contract TokenBundle is Initializable, TokenReceiver, ITokenBundle, IERC5646 {
      * @param asset MultiToken Asset struct representing asset to withdraw.
      */
     function withdraw(MultiToken.Asset memory asset) external onlyOwner onlyUnlocked {
-        asset.transferAsset(msg.sender);
+        asset.safeTransferAssetFrom(address(this), msg.sender);
     }
 
     /**
@@ -113,7 +113,7 @@ contract TokenBundle is Initializable, TokenReceiver, ITokenBundle, IERC5646 {
     function withdrawBatch(MultiToken.Asset[] memory assets) external onlyOwner onlyUnlocked {
         uint256 length = assets.length;
         for (uint256 i; i < length; ) {
-            assets[i].transferAsset(msg.sender);
+            assets[i].safeTransferAssetFrom(address(this), msg.sender);
             unchecked { ++i; }
         }
     }
