@@ -120,6 +120,25 @@ contract TokenBundle is Initializable, TokenReceiver, ITokenBundle, IERC5646 {
 
 
     /*----------------------------------------------------------*|
+    |*  # DEPOSIT BACTH                                         *|
+    |*----------------------------------------------------------*/
+
+    /**
+     * @notice Deposit token batch to the bundle.
+     * @dev Anybody can transfer an asset to the bundle directly or use this function to transfer several assets in one transaction.
+     * @dev Function expects prior approval granted to the bundle.
+     * @param assets MultiToken Asset struct list representing assets to deposit.
+     */
+    function depositBatch(MultiToken.Asset[] memory assets) external {
+        uint256 length = assets.length;
+        for (uint256 i; i < length; ) {
+            assets[i].transferAssetFrom(msg.sender, address(this));
+            unchecked { ++i; }
+        }
+    }
+
+
+    /*----------------------------------------------------------*|
     |*  # ERC165                                                *|
     |*----------------------------------------------------------*/
 

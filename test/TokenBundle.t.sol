@@ -284,6 +284,34 @@ contract TokenBundle_WithdrawBatch_Test is TokenBundleTest {
 
 
 /*----------------------------------------------------------*|
+|*  # DEPOSIT BATCH                                         *|
+|*----------------------------------------------------------*/
+
+contract TokenBundle_DepositBatch_Test is TokenBundleTest {
+
+    function test_shouldTransferLisetOfAssetsFromCallerToBundle() external {
+        address depositor = address(0x420);
+        MultiToken.Asset[] memory assets = new MultiToken.Asset[](2);
+        assets[0] = MultiToken.Asset(MultiToken.Category.ERC721, token, 42, 1);
+        assets[1] = MultiToken.Asset(MultiToken.Category.ERC721, token, 43, 1);
+
+        vm.expectCall(
+            token,
+            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", depositor, address(bundle), 42)
+        );
+        vm.expectCall(
+            token,
+            abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", depositor, address(bundle), 43)
+        );
+
+        vm.prank(depositor);
+        bundle.depositBatch(assets);
+    }
+
+}
+
+
+/*----------------------------------------------------------*|
 |*  # ERC165                                                *|
 |*----------------------------------------------------------*/
 
