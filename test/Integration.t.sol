@@ -21,7 +21,7 @@ contract IntegrationTest is Test {
 
         TokenBundle singleton = new TokenBundle();
         singleton.initialize(address(0));
-        ownership = new TokenBundleOwnership(address(singleton));
+        ownership = new TokenBundleOwnership(address(singleton), address(this), "test:uri");
     }
 
     function test_gas() external {

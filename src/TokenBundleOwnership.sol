@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
@@ -11,9 +12,9 @@ import "./TokenBundle.sol";
 /**
  * @title Token Bundle Ownership
  * @notice Token representing ownership of a Token Bundle.
- * @dev Works as a Token Bundle factory.
+ * @dev Works as a Token Bundle factory. Contract owner can only update token metadata uri.
  */
-contract TokenBundleOwnership is ERC721, IERC5646 {
+contract TokenBundleOwnership is Ownable, ERC721, IERC5646 {
 
     /*----------------------------------------------------------*|
     |*  # VARIABLES & CONSTANTS DEFINITIONS                     *|
@@ -24,6 +25,10 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
      */
     address public immutable singleton;
 
+    /**
+     * @dev Token Bundle Ownership metadata URI with `{id}` placeholder.
+     */
+    string private _metadataUri;
 
     /*----------------------------------------------------------*|
     |*  # EVENTS DEFINITIONS                                    *|
@@ -39,9 +44,11 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
     |*  # CONSTRUCTOR                                           *|
     |*----------------------------------------------------------*/
 
-    constructor(address _singleton) ERC721("PWN Token Bundle Ownership", "BUNDLE") {
+    constructor(address _singleton, address _owner, string memory metadataUri) Ownable() ERC721("PWN Token Bundle Ownership", "BUNDLE") {
         require(keccak256(_singleton.code) == keccak256(type(TokenBundle).runtimeCode), "Invalid singleton address");
         singleton = _singleton;
+        _transferOwnership(_owner);
+        _metadataUri = metadataUri;
     }
 
 
@@ -94,4 +101,25 @@ contract TokenBundleOwnership is ERC721, IERC5646 {
         return IERC5646(address(uint160(tokenId))).getStateFingerprint(tokenId);
     }
 
+
+    /*----------------------------------------------------------*|
+    |*  # TOKEN METADATA                                        *|
+    |*----------------------------------------------------------*/
+
+    /**
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenURI(uint256 tokenId) override public view returns (string memory) {
+        _requireMinted(tokenId);
+        return _metadataUri;
+    }
+
+    /**
+     * @notice Set new Token Bundle Ownership token metadata URI.
+     * @dev Only contract owner can call this function.
+     * @param metadataUri New metadata URI.
+     */
+    function setMetadataUri(string memory metadataUri) external onlyOwner {
+        _metadataUri = metadataUri;
+    }
 }
