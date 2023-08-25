@@ -15,6 +15,10 @@ For in-depth documentation about Token Bundler see [PWN Developer Docs](https://
 
 - Ethereum: [`0x19e3293196aee99BB3080f28B9D3b4ea7F232b8d`](https://etherscan.io/address/0x19e3293196aee99BB3080f28B9D3b4ea7F232b8d)
 - Polygon: [`0xe52405604bf644349f57b36ca6e85cf095fab8da`](https://polygonscan.com/address/0xe52405604bf644349f57b36ca6e85cf095fab8da)
+- Cronos: [`0x973E09e96E64E4bf17e383a8A497Fb566284c707`](https://cronoscan.com/address/0x973E09e96E64E4bf17e383a8A497Fb566284c707)
+- Base: [`0x6fD3f5439aB1C103599385929d5f4c19acdBd264`](https://basescan.org/address/0x6fD3f5439aB1C103599385929d5f4c19acdBd264)
+- Mantle: [`0x67c86D5900a6494a08EE48448e95781DcF33c804`](https://explorer.mantle.xyz/address/0x67c86D5900a6494a08EE48448e95781DcF33c804)
+- Goerli: [`0xA0610921062f99D720710d9763EE8cb1fCF7a845`](https://goerli.etherscan.io/address/0xA0610921062f99D720710d9763EE8cb1fCF7a845)
 
 # PWN is hiring!
 
