@@ -19,6 +19,8 @@ For in-depth documentation about Token Bundler see [PWN Developer Docs](https://
 - Base: [`0x6fD3f5439aB1C103599385929d5f4c19acdBd264`](https://basescan.org/address/0x6fD3f5439aB1C103599385929d5f4c19acdBd264)
 - Mantle: [`0x67c86D5900a6494a08EE48448e95781DcF33c804`](https://explorer.mantle.xyz/address/0x67c86D5900a6494a08EE48448e95781DcF33c804)
 - Goerli: [`0xA0610921062f99D720710d9763EE8cb1fCF7a845`](https://goerli.etherscan.io/address/0xA0610921062f99D720710d9763EE8cb1fCF7a845)
+- Optimism: [`0x43Ffd9dF079451Fe7D16Ac2c51E13DF2a173B71E`](https://optimistic.etherscan.io/token/0x43Ffd9dF079451Fe7D16Ac2c51E13DF2a173B71E)
+- Arbitrum One: [`0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636`](https://arbiscan.io/address/0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636)
 
 # PWN is hiring!
 
