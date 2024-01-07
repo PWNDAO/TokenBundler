@@ -22,6 +22,7 @@ For in-depth documentation about Token Bundler see [PWN Developer Docs](https://
 - Optimism: [`0x43Ffd9dF079451Fe7D16Ac2c51E13DF2a173B71E`](https://optimistic.etherscan.io/token/0x43Ffd9dF079451Fe7D16Ac2c51E13DF2a173B71E)
 - Arbitrum One: [`0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636`](https://arbiscan.io/address/0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636)
 - BSC: [`0x4A75a527E97d853109aA6998a2B9E45a87A31e9f`](https://bscscan.com/address/0x4A75a527E97d853109aA6998a2B9E45a87A31e9f)
+- Sepolia: [`0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636`](https://sepolia.etherscan.io/address/0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636)
 
 # PWN is hiring!
 
