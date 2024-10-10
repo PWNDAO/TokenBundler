@@ -28,6 +28,8 @@ contract Deploy is Script {
         TokenBundler bundler = new TokenBundler(tokenUri);
         bundler.transferOwnership(owner);
 
+        console2.log("TokenBundler deployed at address: %s", address(bundler));
+
         vm.stopBroadcast();
     }
 
