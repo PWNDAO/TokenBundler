@@ -25,6 +25,7 @@ For in-depth documentation about Token Bundler see [PWN Developer Docs](https://
 - Linea: [`0xbe13866797bbdE2646FFBb58F102FcA91EFC88F1`](https://lineascan.build/address/0xbe13866797bbdE2646FFBb58F102FcA91EFC88F1)
 - Gnosis: [`0x431131622e088Fb0F9828Ca05b62210fc9eDcC04`](https://gnosisscan.io/address/0x431131622e088Fb0F9828Ca05b62210fc9eDcC04)
 - Sepolia: [`0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636`](https://sepolia.etherscan.io/address/0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636)
+- Unichain Sepolia: [`0x1381F509f56f2aaA0faBD3012455901eA53F0BbD`](https://sepolia.uniscan.xyz/address/0x1381F509f56f2aaA0faBD3012455901eA53F0BbD)
 
 # PWN is hiring!
 
