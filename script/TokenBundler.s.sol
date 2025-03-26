@@ -6,13 +6,9 @@ import "../src/TokenBundler.sol";
 
 
 /*
-Deploy TokenBundler contracts by executing commands:
-
-source .env
-
 forge script script/TokenBundler.s.sol:Deploy \
---rpc-url $ETHEREUM_URL \
---private-key $DEPLOY_PRIVATE_KEY_MAINNET \
+--rpc-url $RPC_URL \
+--private-key $PRIVATE_KEY \
 --with-gas-price $(cast --to-wei 10 gwei) \
 --verify --etherscan-api-key $ETHERSCAN_API_KEY \
 --broadcast
