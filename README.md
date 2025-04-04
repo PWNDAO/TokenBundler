@@ -26,7 +26,7 @@ For in-depth documentation about Token Bundler see [PWN Developer Docs](https://
 - Gnosis: [`0x431131622e088Fb0F9828Ca05b62210fc9eDcC04`](https://gnosisscan.io/address/0x431131622e088Fb0F9828Ca05b62210fc9eDcC04)
 - World Chain: [`0xc0aCA216Aa936511b24Ff238F610B02bE54e10AD`](https://worldscan.org/address/0xc0aCA216Aa936511b24Ff238F610B02bE54e10AD)
 - Unichain: [`0x354869495Fd916ADAFc0626C3d60115240dc06f1`](https://uniscan.xyz/address/0x354869495Fd916ADAFc0626C3d60115240dc06f1)
-- Ink: [`0x490040E1A2df842Cab527146a20534e23DcC46FF`](0x490040E1A2df842Cab527146a20534e23DcC46FF)
+- Ink: [`0x490040E1A2df842Cab527146a20534e23DcC46FF`](https://explorer.inkonchain.com/address/0x490040E1A2df842Cab527146a20534e23DcC46FF)
 - Sonic: [`0x4A858E9524C154f486DD9C8221d11B1bd14a29fA`](https://sonicscan.org/address/0x4a858e9524c154f486dd9c8221d11b1bd14a29fa)
 - Sepolia: [`0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636`](https://sepolia.etherscan.io/address/0x448E3D0a4BAa00FE511a03E7B27177AeDE6d9636)
 - Unichain Sepolia: [`0x1381F509f56f2aaA0faBD3012455901eA53F0BbD`](https://sepolia.uniscan.xyz/address/0x1381F509f56f2aaA0faBD3012455901eA53F0BbD)
